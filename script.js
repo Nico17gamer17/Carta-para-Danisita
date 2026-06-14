@@ -1,18 +1,11 @@
 /* =========================================================
-   100 razones — script principal
-   - typewriter
-   - razones con reveal on scroll
-   - contador / barra de progreso
-   - música opcional (sintetizada, sin assets externos)
+   100 razones — script principal · The Neighbourhood edition
    ========================================================= */
 
 (() => {
     "use strict";
 
-    /* ----- razones: 100 líneas escritas a mano -----
-       Edita libremente. Algunas son universales,
-       otras son chistes internos que solo ustedes entienden.
-    */
+    /* ----- 100 razones (editables) ----- */
     const REASONS = [
         "porque tu risa es mi sonido favorito sin razón aparente.",
         "porque programas como si el código fuera una forma de hablar.",
@@ -113,8 +106,43 @@
         "porque te quiero. y esa es, honestamente, la razón que sostiene a las otras 99."
     ];
 
-    const FEED_ONE_END = 50;   // primeras 50 razones en #feed
-    const FEED_TWO_START = 50; // restantes en #feedTwo
+    /* ----- Discografía de The Neighbourhood -----
+       Imágenes: Wikipedia (CC) — fallback a silueta si fallan.
+    */
+    const ALBUMS = [
+        {
+            name: "I Love You.",
+            year: "2013 · el inicio",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/The_Neighbourhood_-_I_Love_You..png/300px-The_Neighbourhood_-_I_Love_You..png"
+        },
+        {
+            name: "the love collection™",
+            year: "2014 · ep",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d1/TheLoveCollectionCover.jpg/300px-TheLoveCollectionCover.jpg"
+        },
+        {
+            name: "Wiped Out!",
+            year: "2015 · el vacío bonito",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/5/57/The_Neighbourhood_-_Wiped_Out%21.png/300px-The_Neighbourhood_-_Wiped_Out%21.png"
+        },
+        {
+            name: "Hard to Imagine",
+            year: "2018 · ep",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5d/Hard_to_Imagine_the_Neighbourhood_Ever_Changing_EP_cover.jpg/300px-Hard_to_Imagine_the_Neighbourhood_Ever_Changing_EP_cover.jpg"
+        },
+        {
+            name: "(self-titled)",
+            year: "2018 · el silencio",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/The_Neighbourhood_-_The_Neighbourhood.png/300px-The_Neighbourhood_-_The_Neighbourhood.png"
+        },
+        {
+            name: "Chip Chrome",
+            year: "2020 · metamorfosis",
+            img: "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/Chip_Chrome_%26_the_Mono-Tones_cover.png/300px-Chip_Chrome_%26_the_Mono-Tones_cover.png"
+        }
+    ];
+
+    const FEED_ONE_END = 50;
 
     /* =========================================================
        Loader
@@ -126,7 +154,7 @@
     });
 
     /* =========================================================
-       Typewriter del cover
+       Typewriter
     ========================================================= */
     const TW_LINES = [
         "no es un catálogo.",
@@ -158,7 +186,7 @@
     }
 
     /* =========================================================
-       Botón entrar → scroll suave
+       Enter button
     ========================================================= */
     const enterBtn = document.getElementById("enterBtn");
     if (enterBtn) {
@@ -170,6 +198,26 @@
                     app.scrollIntoView({ behavior: "smooth", block: "start" });
                 });
             }
+        });
+    }
+
+    /* =========================================================
+       Render gallery
+    ========================================================= */
+    const discoGrid = document.getElementById("discoGrid");
+    if (discoGrid) {
+        ALBUMS.forEach((a) => {
+            const node = document.createElement("figure");
+            node.className = "album";
+            node.innerHTML = `
+                <div class="album__cover">
+                    <img src="${a.img}" alt="${a.name}" loading="lazy"
+                         onerror="this.style.opacity='0.15'; this.alt='cover not available'; this.removeAttribute('src');" />
+                </div>
+                <figcaption class="album__name">${a.name}</figcaption>
+                <span class="album__year">${a.year}</span>
+            `;
+            discoGrid.appendChild(node);
         });
     }
 
@@ -188,14 +236,12 @@
         num.className = "reason__num";
         num.textContent = String(idx + 1).padStart(3, "0");
 
-        const body = document.createElement("div");
         const p = document.createElement("p");
         p.className = "reason__text";
         p.textContent = text;
-        body.appendChild(p);
 
         article.appendChild(num);
-        article.appendChild(body);
+        article.appendChild(p);
         return article;
     };
 
@@ -208,9 +254,10 @@
     }
 
     /* =========================================================
-       Reveal on scroll + contador
+       Reveal on scroll + counter
     ========================================================= */
     const reasons = document.querySelectorAll(".reason");
+    const albums = document.querySelectorAll(".album");
     const topbar = document.querySelector(".topbar");
     const topbarBar = document.getElementById("progressBar");
     const countEl = document.getElementById("currentCount");
@@ -220,16 +267,22 @@
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.classList.add("is-visible");
-                revealed++;
-                if (countEl) countEl.textContent = String(Math.min(revealed, REASONS.length));
+                if (entry.target.classList.contains("reason")) {
+                    revealed++;
+                    if (countEl) countEl.textContent = String(Math.min(revealed, REASONS.length));
+                }
             }
         });
     }, {
-        threshold: 0.25,
+        threshold: 0.2,
         rootMargin: "0px 0px -10% 0px"
     });
 
     reasons.forEach((r) => revealObserver.observe(r));
+    albums.forEach((a, i) => {
+        a.style.transitionDelay = `${i * 80}ms`;
+        revealObserver.observe(a);
+    });
 
     /* topbar visibility + progress */
     const updateProgress = () => {
@@ -268,102 +321,43 @@
     }
 
     /* =========================================================
-       Música opcional (sintetizada con WebAudio)
-       No usa archivos externos. Pequeño pad + arpegio muy
-       suave, estilo The Neighbourhood. Es opcional.
+       Reflections — YouTube embed
+       ID: x47TgeRJtH0  (oficial de The Neighbourhood)
     ========================================================= */
     const audioBtn = document.getElementById("audioToggle");
-    let audioCtx = null;
+    const audioPlayer = document.getElementById("audioPlayer");
+    const audioLabel = audioBtn ? audioBtn.querySelector(".audio-toggle__label") : null;
+    const YT_VIDEO_ID = "4BR8426Ihpc";
     let isPlaying = false;
-    let nodes = [];
 
-    const NOTE_FREQ = (n) => 440 * Math.pow(2, (n - 69) / 12);
-    // Notas en MIDI: A2=33, etc. - aquí un pad menor melancólico.
-    const CHORD = [45, 52, 55, 57]; // A2 - E3 - G3 - A3 (Am-ish)
-    const ARPEGGIO = [57, 60, 64, 67, 64, 60]; // pentatónica menor A
-
-    const startAudio = () => {
-        if (audioCtx) return;
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // Pad sostenido
-        const padGain = audioCtx.createGain();
-        padGain.gain.value = 0.0;
-        padGain.connect(audioCtx.destination);
-
-        const padOscs = CHORD.map((midi, i) => {
-            const osc = audioCtx.createOscillator();
-            osc.type = i % 2 === 0 ? "sine" : "triangle";
-            osc.frequency.value = NOTE_FREQ(midi);
-            const g = audioCtx.createGain();
-            g.gain.value = 0.06;
-            osc.connect(g).connect(padGain);
-            osc.start();
-            return osc;
-        });
-
-        // Filtro lowpass suave
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.value = 1200;
-        filter.Q.value = 0.7;
-        padGain.disconnect();
-        padGain.connect(filter).connect(audioCtx.destination);
-
-        // Fade-in
-        padGain.gain.setValueAtTime(0, audioCtx.currentTime);
-        padGain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 3);
-
-        // Arpegio lento
-        let step = 0;
-        const arpInterval = setInterval(() => {
-            if (!audioCtx || !isPlaying) return;
-            const midi = ARPEGGIO[step % ARPEGGIO.length];
-            step++;
-            const osc = audioCtx.createOscillator();
-            osc.type = "sine";
-            osc.frequency.value = NOTE_FREQ(midi);
-            const g = audioCtx.createGain();
-            g.gain.value = 0;
-            osc.connect(g).connect(audioCtx.destination);
-            const t = audioCtx.currentTime;
-            g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(0.07, t + 0.05);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
-            osc.start(t);
-            osc.stop(t + 1.9);
-        }, 650);
-
-        nodes = { padOscs, padGain, arpInterval };
-    };
-
-    const stopAudio = () => {
-        if (!audioCtx) return;
-        const t = audioCtx.currentTime;
-        if (nodes.padGain) {
-            nodes.padGain.gain.cancelScheduledValues(t);
-            nodes.padGain.gain.linearRampToValueAtTime(0, t + 1.2);
-        }
-        setTimeout(() => {
-            if (nodes.padOscs) nodes.padOscs.forEach((o) => o.stop());
-            if (nodes.arpInterval) clearInterval(nodes.arpInterval);
-            audioCtx.close().catch(() => {});
-            audioCtx = null;
-            nodes = [];
-        }, 1400);
-    };
-
-    if (audioBtn) {
+    if (audioBtn && audioPlayer) {
         audioBtn.addEventListener("click", () => {
             isPlaying = !isPlaying;
             if (isPlaying) {
-                startAudio();
+                // Cargar el iframe con autoplay y loop
+                audioPlayer.hidden = false;
+                audioPlayer.innerHTML = `
+                    <iframe
+                        src="https://www.youtube.com/embed/${YT_VIDEO_ID}?enablejsapi=1&autoplay=1&loop=1&playlist=${YT_VIDEO_ID}&modestbranding=1&rel=0"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                `;
+                // Esperar un frame antes de quitar la clase hidden para animar entrada
+                requestAnimationFrame(() => {
+                    audioPlayer.classList.remove("is-hidden");
+                });
                 audioBtn.classList.add("is-playing");
-                audioBtn.querySelector(".audio-toggle__label").textContent = "música on";
+                if (audioLabel) audioLabel.textContent = "on";
             } else {
-                stopAudio();
+                // Apagar: vaciar el iframe para detener la reproducción
+                audioPlayer.classList.add("is-hidden");
+                setTimeout(() => {
+                    audioPlayer.innerHTML = "";
+                    audioPlayer.hidden = true;
+                }, 400);
                 audioBtn.classList.remove("is-playing");
-                audioBtn.querySelector(".audio-toggle__label").textContent = "música";
+                if (audioLabel) audioLabel.textContent = "reflections";
             }
         });
     }
