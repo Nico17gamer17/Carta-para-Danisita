@@ -12,6 +12,16 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+    <!-- Ambient reflections (capa cinematográfica de fondo) -->
+    <div class="reflections" id="reflections" aria-hidden="true">
+        <div class="reflections__sheen reflections__sheen--a"></div>
+        <div class="reflections__sheen reflections__sheen--b"></div>
+        <div class="reflections__sheen reflections__sheen--c"></div>
+        <div class="reflections__lens reflections__lens--a"></div>
+        <div class="reflections__lens reflections__lens--b"></div>
+        <div class="reflections__vignette"></div>
+    </div>
+
     <!-- Loading screen -->
     <div class="loader" id="loader" aria-hidden="true">
         <div class="loader__inner">
@@ -145,7 +155,12 @@
         </footer>
     </main>
 
-    <!-- Audio toggle (optional, no autoplay) -->
+    <!-- Audio: reproductor nativo con MP3 local + fallback elegante -->
+    <audio id="bgAudio" preload="none" loop>
+        <source src="The%20Neighbourhood%20-%20Reflections%20(Official%20Audio).mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Audio toggle (discreto, sin autoplay) -->
     <button class="audio-toggle" id="audioToggle" type="button" aria-label="Reproducir música" title="música (opcional)">
         <span class="audio-toggle__dot" aria-hidden="true"></span>
         <span class="audio-toggle__label">música</span>

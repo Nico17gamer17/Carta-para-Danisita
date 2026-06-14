@@ -321,43 +321,123 @@
     }
 
     /* =========================================================
-       Reflections — YouTube embed
-       ID: x47TgeRJtH0  (oficial de The Neighbourhood)
+       Reflections — parallax reactivo al scroll
+       Mueve las "lentes" según la posición de scroll para
+       que los reflejos respiren con la lectura.
+       Usa rAF + transform (GPU) para mantener FPS en móvil.
+    ========================================================= */
+    const reflections = document.getElementById("reflections");
+    const lensA = reflections ? reflections.querySelector(".reflections__lens--a") : null;
+    const lensB = reflections ? reflections.querySelector(".reflections__lens--b") : null;
+    const sheenC = reflections ? reflections.querySelector(".reflections__sheen--c") : null;
+    const sheenA = reflections ? reflections.querySelector(".reflections__sheen--a") : null;
+
+    let rafScheduled = false;
+    const updateReflections = () => {
+        rafScheduled = false;
+        if (!reflections) return;
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - window.innerHeight;
+        const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+
+        // Movimiento muy sutil: máximo ~6vmin en toda la página
+        const aY = ratio * 24;   // vmin aprox
+        const bY = (1 - ratio) * 18;
+        const aX = ratio * 12;
+        const bX = (1 - ratio) * 14;
+
+        if (lensA) lensA.style.transform = `translate3d(${aX}px, ${-20 + aY}px, 0)`;
+        if (lensB) lensB.style.transform = `translate3d(${-bX}px, ${25 - bY}px, 0)`;
+        if (sheenC) sheenC.style.opacity = String(0.25 + ratio * 0.35);
+        if (sheenA) sheenA.style.opacity = String(0.4 + (1 - ratio) * 0.25);
+    };
+
+    const scheduleReflectionUpdate = () => {
+        if (rafScheduled) return;
+        rafScheduled = true;
+        requestAnimationFrame(updateReflections);
+    };
+
+    if (reflections) {
+        window.addEventListener("scroll", scheduleReflectionUpdate, { passive: true });
+        window.addEventListener("resize", scheduleReflectionUpdate, { passive: true });
+        updateReflections();
+    }
+
+    /* =========================================================
+       Audio — MP3 local (The Neighbourhood — Reflections)
+       Sin autoplay. Si el navegador lo permite, intentamos
+       arrancar en la primera interacción del usuario
+       (click, scroll, keydown, touchstart). Si no, queda
+       el botón discreto en la esquina.
     ========================================================= */
     const audioBtn = document.getElementById("audioToggle");
-    const audioPlayer = document.getElementById("audioPlayer");
+    const audioEl = document.getElementById("bgAudio");
     const audioLabel = audioBtn ? audioBtn.querySelector(".audio-toggle__label") : null;
-    const YT_VIDEO_ID = "4BR8426Ihpc";
     let isPlaying = false;
+    let userInitiated = false;
 
-    if (audioBtn && audioPlayer) {
-        audioBtn.addEventListener("click", () => {
+    const setAudioLabel = (text) => {
+        if (audioLabel) audioLabel.textContent = text;
+    };
+
+    const tryAutoplay = () => {
+        if (!audioEl || userInitiated) return;
+        // Volumen bajo y fade-in para que no sorprenda
+        audioEl.volume = 0;
+        const playPromise = audioEl.play();
+        if (playPromise && typeof playPromise.then === "function") {
+            playPromise.then(() => {
+                userInitiated = true;
+                isPlaying = true;
+                audioBtn && audioBtn.classList.add("is-playing");
+                setAudioLabel("on");
+                // Fade-in muy suave hasta 0.55
+                let v = 0;
+                const fade = setInterval(() => {
+                    v = Math.min(0.55, v + 0.025);
+                    audioEl.volume = v;
+                    if (v >= 0.55) clearInterval(fade);
+                }, 180);
+            }).catch(() => {
+                // El navegador bloqueó: dejamos el botón disponible
+                setAudioLabel("música");
+            });
+        }
+    };
+
+    if (audioEl) {
+        // Eventos de "primera interacción" para intentar el autoplay
+        const firstInteractionEvents = ["pointerdown", "keydown", "touchstart", "scroll"];
+        const onFirstInteraction = () => {
+            tryAutoplay();
+            firstInteractionEvents.forEach((ev) =>
+                window.removeEventListener(ev, onFirstInteraction, { passive: true })
+            );
+        };
+        firstInteractionEvents.forEach((ev) =>
+            window.addEventListener(ev, onFirstInteraction, { passive: true, once: true })
+        );
+    }
+
+    if (audioBtn && audioEl) {
+        audioBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            userInitiated = true;
             isPlaying = !isPlaying;
             if (isPlaying) {
-                // Cargar el iframe con autoplay y loop
-                audioPlayer.hidden = false;
-                audioPlayer.innerHTML = `
-                    <iframe
-                        src="https://www.youtube.com/embed/${YT_VIDEO_ID}?enablejsapi=1&autoplay=1&loop=1&playlist=${YT_VIDEO_ID}&modestbranding=1&rel=0"
-                        allow="autoplay; encrypted-media; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
-                `;
-                // Esperar un frame antes de quitar la clase hidden para animar entrada
-                requestAnimationFrame(() => {
-                    audioPlayer.classList.remove("is-hidden");
+                audioEl.volume = 0.55;
+                audioEl.play().catch(() => {
+                    isPlaying = false;
+                    audioBtn.classList.remove("is-playing");
+                    setAudioLabel("música");
                 });
                 audioBtn.classList.add("is-playing");
-                if (audioLabel) audioLabel.textContent = "on";
+                setAudioLabel("on");
             } else {
-                // Apagar: vaciar el iframe para detener la reproducción
-                audioPlayer.classList.add("is-hidden");
-                setTimeout(() => {
-                    audioPlayer.innerHTML = "";
-                    audioPlayer.hidden = true;
-                }, 400);
+                audioEl.pause();
                 audioBtn.classList.remove("is-playing");
-                if (audioLabel) audioLabel.textContent = "reflections";
+                setAudioLabel("música");
             }
         });
     }
