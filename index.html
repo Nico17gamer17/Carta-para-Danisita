@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <title>100 razones por las que me enamoré de ti — Dani</title>
+    <meta name="description" content="Una carta digital. Cien razones. Una sola persona." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loader" id="loader" aria-hidden="true">
+        <div class="loader__inner">
+            <div class="loader__bar"></div>
+            <span class="loader__text">loading something honest</span>
+        </div>
+    </div>
+
+    <!-- Welcome / cover -->
+    <section class="cover" id="cover">
+        <div class="cover__grain" aria-hidden="true"></div>
+
+        <header class="cover__top">
+            <span class="brand">[ a love letter in code ]</span>
+            <span class="brand brand--right">v1.0 · for dani</span>
+        </header>
+
+        <main class="cover__main">
+            <p class="cover__eyebrow">// cien razones</p>
+            <h1 class="cover__title">
+                <span class="line">100 razones</span>
+                <span class="line line--italic">por las que me enamoré</span>
+                <span class="line">de ti.</span>
+            </h1>
+
+            <p class="cover__subtitle">
+                <span id="typewriter"></span><span class="caret" aria-hidden="true">|</span>
+            </p>
+
+            <div class="cover__cta">
+                <button class="btn" id="enterBtn" type="button">
+                    <span class="btn__label">entrar</span>
+                    <span class="btn__arrow" aria-hidden="true">→</span>
+                </button>
+                <p class="cover__hint">te recomiendo bajar el brillo, subir el volumen y leer con calma.</p>
+            </div>
+        </main>
+
+        <footer class="cover__bottom">
+            <span>scroll</span>
+            <span class="cover__line" aria-hidden="true"></span>
+        </footer>
+    </section>
+
+    <!-- Main content -->
+    <main class="app" id="app" hidden>
+        <!-- Sticky counter / nav -->
+        <nav class="topbar" aria-label="Progreso de lectura">
+            <span class="topbar__brand">dani.</span>
+            <div class="topbar__progress" aria-hidden="true">
+                <div class="topbar__bar" id="progressBar"></div>
+            </div>
+            <span class="topbar__count">
+                <span id="currentCount">0</span><span class="dim"> / 100</span>
+            </span>
+        </nav>
+
+        <!-- Intro -->
+        <section class="intro">
+            <p class="intro__eyebrow">// una carta, cien motivos, una sola persona</p>
+            <h2 class="intro__title">
+                No es un catálogo. <em>Es un mapa.</em><br />
+                De todo lo que me hace volver a ti.
+            </h2>
+            <p class="intro__body">
+                Cada número es algo pequeño. Algo que probablemente ni notas.
+                Pero que a mí me cambia el día.
+                <br /><br />
+                Léelo como quieras. Despacio. Rápido. A las 3am. Da igual.
+                <span class="dim">Esto no caduca.</span>
+            </p>
+        </section>
+
+        <!-- Reasons feed -->
+        <section class="feed" id="feed" aria-live="polite"></section>
+
+        <!-- Quote / pause -->
+        <section class="pause">
+            <blockquote>
+                <p>
+                    “I don't know where I belong.<br />
+                    I just know where I don't.”<br />
+                    <span class="pause__cite">— The Neighbourhood</span>
+                </p>
+            </blockquote>
+        </section>
+
+        <!-- More reasons (part 2) -->
+        <section class="feed feed--two" id="feedTwo" aria-live="polite"></section>
+
+        <!-- Final section -->
+        <section class="finale" id="finale">
+            <div class="finale__inner">
+                <p class="finale__eyebrow">// 100 / 100</p>
+                <h2 class="finale__title">
+                    Y aún así, no alcanzan.<br />
+                    <em>No te alcanzan.</em>
+                </h2>
+
+                <div class="finale__body">
+                    <p>
+                        Esto empezó como una idea tonta a las tantas de la noche,
+                        porque quería regalarte algo que no se acabara al día siguiente.
+                    </p>
+                    <p>
+                        Un <code>&lt;html&gt;</code> honesto, con cien líneas de
+                        <code>razones.push(te_elegí)</code> y un solo
+                        <code>return tú;</code> al final.
+                    </p>
+                    <p>
+                        Si llegaste hasta aquí, gracias por leer.
+                        Y gracias, sobre todo, <em>por existir como tú</em>.
+                    </p>
+                </div>
+
+                <div class="finale__sign">
+                    <span class="finale__line" aria-hidden="true"></span>
+                    <p class="finale__name">— para Dani.</p>
+                    <p class="finale__date" id="todayDate"></p>
+                </div>
+
+                <button class="btn btn--ghost" id="restartBtn" type="button">
+                    <span class="btn__label">volver al inicio</span>
+                    <span class="btn__arrow" aria-hidden="true">↑</span>
+                </button>
+            </div>
+        </section>
+
+        <footer class="sitefoot">
+            <span>hecho con código, café y un poco de miedo a que no te guste</span>
+        </footer>
+    </main>
+
+    <!-- Audio toggle (optional, no autoplay) -->
+    <button class="audio-toggle" id="audioToggle" type="button" aria-label="Reproducir música" title="música (opcional)">
+        <span class="audio-toggle__dot" aria-hidden="true"></span>
+        <span class="audio-toggle__label">música</span>
+    </button>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
